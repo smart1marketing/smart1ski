@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: smart1ski
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      # The exact origin that embeds the form, e.g. https://suite.smart1marketing.com
+      # Leave this unset only while testing. A wildcard lets any site post to the API.
+      - key: ALLOWED_ORIGIN
+        sync: false
+      - key: SMART1_WEBHOOK_URL
+        sync: false
