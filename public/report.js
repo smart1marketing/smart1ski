@@ -345,7 +345,7 @@
     html +=
       '<section class="block">' +
         '<div class="block-eyebrow">Section 4 — The media plan</div>' +
-        "<h3>Three channels, " + money(b.budget) + " a month</h3>" +
+        "<h3>" + (b.channels || []).length + " channels, " + money(b.budget) + " a month</h3>" +
         '<p class="lede">' + esc(b.objective_rationale) + " " + esc(b.resort_type_rationale) + "</p>" +
         "<table><thead><tr>" +
           "<th>Channel</th><th class='num'>Share</th><th class='num'>Monthly</th>" +
@@ -406,7 +406,22 @@
           ? '<p class="lede" style="margin-top:16px"><strong>Named competitors to target:</strong> ' + esc(t.named_competitors.join(", ")) + "</p>"
           : '<div style="height:16px"></div>') +
         chips(t.geofence_categories) +
-        '<p class="methodology">' + esc(t.lookback_recommendation) + "</p>" +
+
+        '<h4 class="sub">Digital out-of-home venues</h4>' +
+        '<p class="lede">' + esc(t.dooh_recommendation || "") + "</p>" +
+        chips(t.dooh_venue_categories || []) +
+
+        '<h4 class="sub">Location lookback audiences</h4>' +
+        (t.lookback_strategy || []).map(function (l) {
+          return '<div class="lookback">' +
+            "<h5>" + esc(l.name) + "</h5>" +
+            "<dl>" +
+              "<dt>How</dt><dd>" + esc(l.how) + "</dd>" +
+              "<dt>Why it works</dt><dd>" + esc(l.why) + "</dd>" +
+              "<dt>Window</dt><dd>" + esc(l.window) + "</dd>" +
+            "</dl></div>";
+        }).join("") +
+        '<p class="methodology">' + esc(t.lookback_caveat || "") + "</p>" +
       "</section>";
 
     /* ---------------------------------------------------- trigger playbook */

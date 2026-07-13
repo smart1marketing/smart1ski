@@ -26,12 +26,16 @@
 
     <div id="formError" class="banner banner-error" style="display:none;margin:16px 26px 0"></div>
 
-    <!-- Not a real field. Left off-screen for people, visible to bots. -->
+    <!-- Not a real field. Off-screen for people, visible to scripted bots.
+         The name is deliberately meaningless: anything that looks like a real
+         field ("company_website", "phone", "url") gets autofilled by Chrome and
+         every password manager, which rejects real prospects. -->
     <div class="trap" aria-hidden="true">
-      <label for="company_website">Company website</label>
-      <input id="company_website" name="company_website" type="text" tabindex="-1" autocomplete="off">
+      <input id="s1_qx7" name="s1_qx7" type="text" tabindex="-1" autocomplete="off">
     </div>
-    <input type="hidden" name="form_started_at" id="form_started_at">
+    <!-- Elapsed milliseconds since the page loaded. Not a wall-clock timestamp:
+         a browser clock a few minutes fast would otherwise reject every human. -->
+    <input type="hidden" name="form_elapsed_ms" id="form_elapsed_ms">
 
     <!-- 1 -->
     <fieldset class="step" data-step="1" data-label="Resort">
@@ -74,15 +78,6 @@
 
       <div class="pair">
         <div class="field">
-          <label for="resort_type">Resort type</label>
-          <select id="resort_type" name="resort_type">
-            <option value="day_drive">Day and drive market</option>
-            <option value="regional_overnight" selected>Regional with overnight lodging</option>
-            <option value="destination">Destination resort</option>
-            <option value="tubing_focus">Tubing and beginner focus</option>
-          </select>
-        </div>
-        <div class="field">
           <label for="snowmaking">Snowmaking</label>
           <select id="snowmaking" name="snowmaking">
             <option value="yes">Yes — full snowmaking</option>
@@ -90,6 +85,17 @@
             <option value="no">No snowmaking</option>
           </select>
         </div>
+      </div>
+
+      <div class="field">
+        <span class="group-label">Resort type <span class="hint">Choose any that apply. The mix is blended across what you pick.</span></span>
+        <div class="checks" id="resort_type_group">
+          <label><input type="checkbox" name="resort_type" value="day_drive"> Day and drive market</label>
+          <label><input type="checkbox" name="resort_type" value="regional_overnight" checked> Regional with overnight lodging</label>
+          <label><input type="checkbox" name="resort_type" value="destination"> Destination resort</label>
+          <label><input type="checkbox" name="resort_type" value="tubing_focus"> Tubing and beginner focus</label>
+        </div>
+        <div class="field-error">Choose at least one resort type.</div>
       </div>
 
       <div class="field">
@@ -172,43 +178,14 @@
         <textarea id="target_markets" name="target_markets" placeholder="Columbus&#10;Cleveland&#10;Cincinnati&#10;Pittsburgh&#10;Detroit" style="min-height:110px"></textarea>
       </div>
 
-      <details class="advanced">
-        <summary>Audience assumptions and manual fallback</summary>
-        <div>
-          <div class="pair">
-            <div class="field">
-              <label for="affluent_share">Affluent household share <span class="hint">Percent</span></label>
-              <input id="affluent_share" name="affluent_share" inputmode="numeric" value="35">
-            </div>
-            <div class="field">
-              <label for="ski_household_rate">Skiing household rate <span class="hint">Percent</span></label>
-              <input id="ski_household_rate" name="ski_household_rate" inputmode="numeric" value="9">
-            </div>
-          </div>
-          <div class="pair">
-            <div class="field">
-              <label for="persons_per_household">Persons per household</label>
-              <input id="persons_per_household" name="persons_per_household" inputmode="decimal" value="2.45">
-            </div>
-            <div class="field">
-              <label for="drive_market_share">Drive-market relevance
-                <span class="hint">Percent. Only used if no market can be located.</span>
-              </label>
-              <input id="drive_market_share" name="drive_market_share" inputmode="numeric" value="75">
-            </div>
-          </div>
-          <div class="pair">
-            <div class="field">
-              <label for="feeder_households">Combined households <span class="hint">Fallback only</span></label>
-              <input id="feeder_households" name="feeder_households" inputmode="numeric" placeholder="800000">
-            </div>
-            <div class="field">
-              <label for="feeder_population">Combined population <span class="hint">Fallback only</span></label>
-              <input id="feeder_population" name="feeder_population" inputmode="numeric" placeholder="1960000">
-            </div>
-          </div>
-        </div>
-      </details>
+      <!-- Audience assumptions run on defaults. Left in the payload so the model
+           and the Smart 1 Suite fields keep receiving them. -->
+      <input type="hidden" name="affluent_share" value="35">
+      <input type="hidden" name="ski_household_rate" value="9">
+      <input type="hidden" name="persons_per_household" value="2.45">
+      <input type="hidden" name="drive_market_share" value="75">
+      <input type="hidden" name="feeder_households" value="">
+      <input type="hidden" name="feeder_population" value="">
     </fieldset>
 
     <!-- 4 -->
@@ -222,19 +199,20 @@
         <textarea id="competitors" name="competitors" placeholder="Competing mountain&#10;Competing tubing park"></textarea>
       </div>
       <div class="field">
-        <label for="campaign_objective">Main revenue objective</label>
-        <select id="campaign_objective" name="campaign_objective">
-          <option value="lift_tickets">Lift tickets</option>
-          <option value="season_passes">Season passes</option>
-          <option value="lodging">Lodging</option>
-          <option value="local_visits">Local visits and tubing</option>
-        </select>
+        <span class="group-label">Revenue objectives <span class="hint">Choose any that apply. The channel mix is blended across what you pick.</span></span>
+        <div class="checks" id="campaign_objective_group">
+          <label><input type="checkbox" name="campaign_objective" value="lift_tickets" checked> Lift tickets</label>
+          <label><input type="checkbox" name="campaign_objective" value="season_passes"> Season passes</label>
+          <label><input type="checkbox" name="campaign_objective" value="lodging"> Lodging</label>
+          <label><input type="checkbox" name="campaign_objective" value="local_visits"> Local visits and tubing</label>
+        </div>
+        <div class="field-error">Choose at least one revenue objective.</div>
       </div>
       <div class="field">
         <label for="current_media">Current paid media
           <span class="hint">What you're running today. The report says where this plan overlaps it and where it doesn't.</span>
         </label>
-        <input id="current_media" name="current_media" placeholder="Paid social, some search, local radio">
+        <input id="current_media" name="current_media" placeholder="Paid social, some search, print">
       </div>
     </fieldset>
 
@@ -242,19 +220,14 @@
     <fieldset class="step" data-step="5" data-label="Budget">
       <div class="step-eyebrow">Section 5 of 7</div>
       <h2>Budget</h2>
-      <p class="step-note">Connected TV, programmatic display, and digital audio only. Paid search and paid social are excluded from this package.</p>
+      <p class="step-note">Connected TV, streaming radio and podcasts, data-driven targeted display, and digital out-of-home. Paid search, paid social, and print are excluded from this package.</p>
 
       <div class="field">
         <label for="monthly_budget">Monthly advertising budget <span class="hint">US dollars</span></label>
         <input id="monthly_budget" name="monthly_budget" inputmode="numeric" value="6000" required>
         <div class="field-error">Enter a monthly budget between $2,500 and $100,000.</div>
       </div>
-      <div class="field">
-        <label for="minimum_activation_share">Minimum activation share
-          <span class="hint">The floor below which spending will not be cut, even in a historically weak week. Prefilled from your booking window.</span>
-        </label>
-        <input id="minimum_activation_share" name="minimum_activation_share" inputmode="numeric" value="35">
-      </div>
+      <input type="hidden" id="minimum_activation_share" name="minimum_activation_share" value="35">
       <div class="field">
         <label for="offers_constraints">Offers and constraints</label>
         <textarea id="offers_constraints" name="offers_constraints" placeholder="Blackout dates, pricing rules, pass deadlines"></textarea>
@@ -327,6 +300,7 @@
 
   var MONTHS = ["", "January","February","March","April","May","June","July","August","September","October","November","December"];
   var OBJECTIVES = { lift_tickets:"Lift tickets", season_passes:"Season passes", lodging:"Lodging", local_visits:"Local visits and tubing" };
+  var TYPES = { day_drive:"Day and drive", regional_overnight:"Regional with lodging", destination:"Destination", tubing_focus:"Tubing and beginner" };
 
   // Mirrors lib/weather.js BOOKING. Kept in sync deliberately: the form has to
   // tell the customer what the floor will be before they see the number.
@@ -346,9 +320,9 @@
   var formError = document.getElementById("formError");
   var reportEl = document.getElementById("report");
   var current = 0;
-  var floorTouched = false;
 
-  document.getElementById("form_started_at").value = String(Date.now());
+  var pageLoadedAt = Date.now();
+  var elapsedInput = document.getElementById("form_elapsed_ms");
 
   function money(n) { return "$" + (Math.round(Number(n) || 0)).toLocaleString("en-US"); }
   function esc(s) {
@@ -357,6 +331,12 @@
     });
   }
   function val(name) { var el = form.elements[name]; return el ? String(el.value || "").trim() : ""; }
+
+  // Checkbox groups share a name, so form.elements[name] is a list, not a field.
+  function vals(name) {
+    return [].slice.call(form.querySelectorAll('input[name="' + name + '"]:checked'))
+             .map(function (c) { return c.value; });
+  }
 
   /* month dropdowns */
   var startSel = document.getElementById("season_start_month");
@@ -368,17 +348,12 @@
 
   /* booking window drives the activation floor — the field is no longer dead */
   var bookingSel = document.getElementById("booking_window");
-  var floorInput = document.getElementById("minimum_activation_share");
   var bookingNote = document.getElementById("bookingNote");
-
-  floorInput.addEventListener("input", function () { floorTouched = true; });
 
   function syncBooking() {
     var b = BOOKING[bookingSel.value] || BOOKING.week;
     bookingNote.innerHTML =
-      "<strong>Media lead: " + b.lead + (b.lead === 1 ? " day" : " days") + ". " +
-      "Minimum activation: " + b.floor + "%.</strong> " + esc(b.why);
-    if (!floorTouched) floorInput.value = String(b.floor);
+      "<strong>Media lead: " + b.lead + (b.lead === 1 ? " day" : " days") + ".</strong> " + esc(b.why);
   }
   bookingSel.addEventListener("change", syncBooking);
   syncBooking();
@@ -445,6 +420,15 @@
       else mark(el.summit_elevation_ft, false);
     }
 
+    ["resort_type", "campaign_objective"].forEach(function (name) {
+      var group = step.querySelector('input[name="' + name + '"]');
+      if (!group) return;
+      var field = group.closest(".field");
+      var chosen = vals(name).length > 0;
+      field.classList.toggle("is-invalid", !chosen);
+      if (!chosen) ok = false;
+    });
+
     if (!ok) {
       var first = step.querySelector(".is-invalid input, .is-invalid select");
       if (first) first.focus();
@@ -467,8 +451,9 @@
       ["Season", MONTHS[Number(val("season_start_month"))] + " – " + MONTHS[Number(val("season_end_month"))]],
       ["Snowmaking", form.elements.snowmaking.selectedOptions[0].text],
       ["Booking window", form.elements.booking_window.selectedOptions[0].text],
+      ["Resort type", vals("resort_type").map(function (v) { return TYPES[v]; }).join(", ") || "Not specified"],
       ["Feeder markets", markets.join(", ") || "Not specified"],
-      ["Objective", OBJECTIVES[val("campaign_objective")]],
+      ["Objectives", vals("campaign_objective").map(function (v) { return OBJECTIVES[v]; }).join(", ") || "Not specified"],
       ["Monthly budget", money(val("monthly_budget"))],
       ["Send to", val("contact_email")]
     ];
@@ -478,6 +463,11 @@
   }
 
   /* submit */
+  // When embedded, the frame grows and the parent page needs to follow.
+  function revealReport() {
+    if (window.Smart1Embed) window.Smart1Embed.revealReport();
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -487,9 +477,14 @@
 
     var payload = {};
     [].forEach.call(form.elements, function (el) {
-      if (el.name) payload[el.name] = String(el.value || "").trim();
+      if (!el.name) return;
+      if (el.type === "checkbox") return;              // handled below
+      payload[el.name] = String(el.value || "").trim();
     });
+    payload.resort_type = vals("resort_type").join(",");
+    payload.campaign_objective = vals("campaign_objective").join(",");
     payload.ski_participation_rate = payload.ski_household_rate;
+    payload.form_elapsed_ms = String(Date.now() - pageLoadedAt);
     payload.operating_months = MONTHS[Number(payload.season_start_month)] + "–" + MONTHS[Number(payload.season_end_month)];
 
     buildBtn.disabled = true;
@@ -510,6 +505,7 @@
           Smart1Report.render(reportEl, d.report, {
             notice: { level: "warn", text: "The plan was built, but it was not recorded in Smart 1 Suite. " + (d.details || "") }
           });
+          revealReport();
           return;
         }
         if (!d.ok) throw new Error(d.error || "The plan could not be built.");
@@ -521,6 +517,7 @@
           notice = { level: "warn", text: "The plan was built. No Smart 1 Suite webhook is configured on this server, so no lead was created." };
         }
         Smart1Report.render(reportEl, d.report, { notice: notice });
+        revealReport();
       })
       .catch(function (err) {
         formError.textContent = err.message || "The plan could not be built. Check the ZIP code and try again.";
@@ -533,6 +530,53 @@
   });
 
   show(0);
+})();
+</script>
+
+<!-- Iframe height bridge. Reports the page height to the parent so the embed
+     can resize itself: no inner scrollbar, no dead space below the form.
+     Height is the only thing sent. Harmless if the page is opened directly. -->
+<script>
+(function () {
+  "use strict";
+  if (window.parent === window) return;   // not embedded — nothing to do
+
+  var last = 0;
+
+  function measure() {
+    var d = document.documentElement;
+    var b = document.body;
+    return Math.ceil(Math.max(
+      d.scrollHeight, d.offsetHeight,
+      b ? b.scrollHeight : 0, b ? b.offsetHeight : 0
+    ));
+  }
+
+  function send(force) {
+    var h = measure();
+    if (!force && Math.abs(h - last) < 2) return;   // ignore sub-pixel churn
+    last = h;
+    window.parent.postMessage({ type: "smart1ski:height", height: h }, "*");
+  }
+
+  // Ask the parent to bring the frame into view once the report lands, so the
+  // reader is not left staring at the form they just finished.
+  window.Smart1Embed = {
+    revealReport: function () {
+      window.parent.postMessage({ type: "smart1ski:scroll" }, "*");
+    }
+  };
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(function () { send(false); }).observe(document.documentElement);
+  } else {
+    setInterval(function () { send(false); }, 400);   // older browsers
+  }
+
+  window.addEventListener("load", function () { send(true); });
+  window.addEventListener("resize", function () { send(true); });
+  document.addEventListener("click", function () { setTimeout(send, 60); });
+  send(true);
 })();
 </script>
 </body>

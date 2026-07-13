@@ -76,14 +76,24 @@ function rateLimited(ip) {
 }
 
 function looksAutomated(body) {
-  // A hidden field no human can see. If it is filled, it was not filled by a person.
-  if (String(body.company_website || "").trim()) return "Submission rejected.";
+  // An off-screen field with a meaningless name. Real people never see it; the
+  // name gives browser autofill nothing to match on. If it comes back filled,
+  // something scripted the form.
+  if (String(body.s1_qx7 || "").trim()) {
+    console.warn("[smart1ski] honeypot tripped");
+    return "This submission could not be accepted. If you are a person, reload the page and try again.";
+  }
 
-  // A human cannot read seven sections and type a resort name in three seconds.
-  const started = num(body.form_started_at, 0);
-  if (started > 0) {
-    const seconds = (Date.now() - started) / 1000;
-    if (seconds < LIMITS.MIN_FORM_SECONDS) return "Submission rejected.";
+  // Elapsed milliseconds measured inside the browser, NOT a wall-clock stamp
+  // compared against the server's clock. Any skew between the two — and a few
+  // minutes of skew is ordinary — would otherwise reject every real prospect.
+  const elapsed = num(body.form_elapsed_ms, -1);
+  if (elapsed >= 0) {
+    const seconds = elapsed / 1000;
+    if (seconds < LIMITS.MIN_FORM_SECONDS) {
+      console.warn(`[smart1ski] submitted in ${seconds.toFixed(1)}s`);
+      return "That was submitted faster than the form can be filled in. Reload the page and try again.";
+    }
     if (seconds > 12 * 60 * 60) return "This form has been open too long. Reload the page and try again.";
   }
   return null;
@@ -141,7 +151,7 @@ async function relayWebhook(payload) {
 }
 
 function suitePayload(body, report) {
-  const { company_website, form_started_at, ...clean } = body;
+  const { s1_qx7, form_elapsed_ms, ...clean } = body;
   return {
     ...clean,
     source: "Smart 1 Ski Resort Package",

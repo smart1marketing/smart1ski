@@ -16,7 +16,7 @@ seven-section intake and receives a client-ready plan covering:
 
 The submission and report are relayed server-side to a Smart 1 Suite webhook.
 
-Paid search and paid social are intentionally excluded from this package.
+Paid search, paid social, and print are intentionally excluded from this package.
 
 ## Files
 
@@ -182,3 +182,39 @@ The historical analysis is directional and the 16-day outlook is a forecast,
 not a plan. Live activation must use the client-approved weather source and
 operational data. Weather must never override lift status, road access, ticket
 inventory, staffing, avalanche control, or resort management decisions.
+
+## Channel scope
+
+The plan is limited to four channels, all of which can be targeted against a
+built audience and switched by a weather trigger:
+
+| Channel | Planning CPM | Role |
+|---|---|---|
+| Connected TV | $35 | Awareness and emotional demand on the big screen |
+| Data-Driven Targeted Display | $12 | Frequency and response against the built audience, not a publisher list |
+| Streaming Radio and Podcasts | $20 | Drive-market guests in the car, outdoor and travel podcast audiences at home |
+| Digital Out-of-Home | $22 | Bars, restaurants, gas stations, and shopping areas, where the weekend plan gets made |
+
+Paid search, paid social, and print are excluded. Print in particular cannot be
+weather-triggered, cannot be targeted to a skiing-household audience, and cannot
+be measured against visitation — if a resort is running it, the report says so
+and frames this plan as a replacement rather than an addition.
+
+CPMs are planning assumptions and live in one object (`CPMS`) at the top of
+`lib/plan.js`. Confirm them against real avails before quoting.
+
+## Location lookback
+
+The strongest audience in the plan is not people who have already been to a ski
+resort — your competitors are all buying that one. It is households that camp.
+
+Capture devices seen at campgrounds, RV parks, state parks, and trailhead lots
+across the feeder markets from June through October, resolve them to their home
+neighborhoods, and activate against those households from opening day. A
+household that camps already spends its weekends outdoors and already owns the
+gear habit. The signal is seasonal, so the lookback window must be long enough
+to reach back into a summer that has already happened.
+
+Match rates, lookback windows, home-resolution, and venue-category availability
+all vary by data partner. Confirm counts before any of this is committed to a
+client.

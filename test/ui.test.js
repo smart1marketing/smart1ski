@@ -54,8 +54,8 @@ window.addEventListener("load", () => {
 
   console.log("\nintake");
   ok("7 steps in the rail", document.querySelectorAll(".rail-step").length === 7);
-  ok("honeypot present and off-screen", !!$(".trap #company_website"));
-  ok("form_started_at stamped", Number(document.getElementById("form_started_at").value) > 0);
+  ok("honeypot present, off-screen, unlabelled", !!$(".trap #s1_qx7") && !$(".trap label"));
+  ok("no wall-clock stamp to skew", !document.querySelector('[name="form_started_at"]'));
   ok("season defaults to November–March",
     document.getElementById("season_start_month").value === "11" &&
     document.getElementById("season_end_month").value === "3");
@@ -85,7 +85,7 @@ window.addEventListener("load", () => {
   const booking = document.getElementById("booking_window");
   booking.value = "season";
   booking.dispatchEvent(new window.Event("change"));
-  ok("switching to season-long raises the floor to 60%", floor.value === "60", `(${floor.value})`);
+  ok("floor stays at the 35% default whatever the booking window", floor.value === "35", `(${floor.value})`);
   ok("booking note explains the lead", /Media lead/.test(document.getElementById("bookingNote").textContent));
 
   booking.value = "week";
@@ -164,7 +164,12 @@ window.addEventListener("load", () => {
     ok("bands published", /strong weather-trigger market/i.test(text));
 
     ok("current-media gap analysis shown", /running today/i.test(text));
-    ok("all three channels", text.includes("Connected TV") && text.includes("Programmatic Display") && text.includes("Digital Audio"));
+    ok("all four channels", text.includes("Connected TV") && text.includes("Data-Driven Targeted Display") &&
+     text.includes("Streaming Radio and Podcasts") && text.includes("Digital Out-of-Home"));
+  ok("no newspaper or news-site language", !/newspaper|news site|news sites/i.test(text));
+  ok("campgrounds and state parks are targeted", /campground/i.test(text) && /state park/i.test(text));
+  ok("DOOH venues listed", /gas station/i.test(text) && /bars/i.test(text));
+  ok("outdoor-recreation lookback present", /Outdoor-recreation lookback/i.test(text));
     ok("search/social exclusion stated", /Paid search and paid social are intentionally excluded/.test(text));
 
     ok("5 triggers with timing", rpt.querySelectorAll(".trigger").length === 5 && /Timing/.test(text));

@@ -96,7 +96,7 @@ const BODY = {
   zip_code: "16341",
   base_elevation_ft: 1150,
   summit_elevation_ft: 2400,
-  resort_type: "regional_overnight",
+  resort_type: "day_drive,regional_overnight",
   snowmaking: "yes",
   season_start_month: 11,
   season_end_month: 3,
@@ -107,16 +107,17 @@ const BODY = {
   ski_household_rate: 9,
   persons_per_household: 2.45,
   competitors: "Mad River Mountain",
-  campaign_objective: "lift_tickets",
+  campaign_objective: "lift_tickets,season_passes",
   current_media: "Paid social and some Google Ads",
   monthly_budget: 6000,
   contact_name: "Dana Reyes",
   contact_email: "dana@hollowridge.com",
-  form_started_at: Date.now() - 60000
+  minimum_activation_share: 35,
+  form_elapsed_ms: 60000
 };
 
 async function post(overrides, email) {
-  const body = { ...BODY, ...overrides, form_started_at: Date.now() - 60000 };
+  const body = { ...BODY, ...overrides, form_elapsed_ms: 60000 };
   if (email) body.contact_email = email;
   const res = await realFetch("http://127.0.0.1:10999/api/analyze", {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
@@ -190,12 +191,27 @@ setTimeout(async () => {
   console.log("\n6 · budget protection");
   console.log(`     always-on ${s.always_on_season_spend.toLocaleString()} → trigger ${s.modeled_trigger_controlled_spend.toLocaleString()} ` +
               `= protected $${s.estimated_budget_protected.toLocaleString()} (${s.estimated_budget_protected_percent}%)`);
-  ok("floor came from the booking window", s.minimum_activation_share_percent === 35);
+  ok("activation floor held at the 35% default", s.minimum_activation_share_percent === 35);
   ok("activation share is weekend-weighted and lead-shifted", s.historical_activation_share_percent > 0);
 
   console.log("\n7 · media plan");
   b.channels.forEach((ch) => console.log(`     ${ch.channel.padEnd(22)} ${String(ch.share_percent).padStart(2)}%  $${String(ch.budget).padStart(5)}  → ${ch.impressions.toLocaleString()} imps`));
   ok("shares sum to 100%", Math.abs(b.channels.reduce((t, ch) => t + ch.share_percent, 0) - 100) <= 1);
+  ok("four channels", b.channels.length === 4);
+  ok("allocation sums exactly to the budget",
+     b.channels.reduce((t, ch) => t + ch.budget, 0) === b.budget);
+  ok("DOOH is a real line with a CPM",
+     !!b.channels.find((ch) => ch.key === "dooh" && ch.budget > 0 && ch.cpm_assumption > 0));
+  ok("no newspaper or news-site language anywhere in the report",
+     !/newspaper|news site/i.test(JSON.stringify(r)));
+  ok("campgrounds and state parks are geofence targets",
+     r.recommended_targets.geofence_categories.some((g) => /campground/i.test(g)) &&
+     r.recommended_targets.geofence_categories.some((g) => /state park/i.test(g)));
+  ok("DOOH venues include bars, restaurants, gas stations, shopping",
+     ["bar", "restaurant", "gas station", "shopping"].every((v) =>
+       r.recommended_targets.dooh_venue_categories.some((d) => d.toLowerCase().includes(v))));
+  ok("outdoor-recreation lookback is spelled out",
+     r.recommended_targets.lookback_strategy.some((l) => /outdoor-recreation/i.test(l.name)));
   ok("current media gaps surfaced", b.current_media_gaps.length >= 2);
   ok("paid social gap called out", b.current_media_gaps.some((g) => /social/i.test(g)));
 
@@ -209,16 +225,16 @@ setTimeout(async () => {
   const noSnow = await post({ snowmaking: "no", booking_window: "season" }, "b@x.com");
   const n = noSnow.data.report;
   ok("snowmaking window not counted as a trigger", /do(es)? not make snow/.test(n.climate.qualified_day_definition));
-  ok("season booking raises the floor to 60%", n.savings_model.minimum_activation_share_percent === 60);
+  ok("form-sent floor of 35% wins over the booking default", n.savings_model.minimum_activation_share_percent === 35);
   ok("trigger renamed to Cold Preservation", n.trigger_plan.some((t) => t.name === "Cold Preservation Window"));
 
   console.log("\n9 · abuse guards");
-  const bot = await post({ company_website: "http://spam.example" }, "bot@x.com");
+  const bot = await post({ s1_qx7: "http://spam.example" }, "bot@x.com");
   ok("honeypot rejected", bot.status === 400);
 
   const fast = await realFetch("http://127.0.0.1:10999/api/analyze", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...BODY, form_started_at: Date.now() - 500, contact_email: "fast@x.com" })
+    body: JSON.stringify({ ...BODY, form_elapsed_ms: 500, contact_email: "fast@x.com" })
   });
   ok("sub-5-second submission rejected", fast.status === 400);
 

@@ -80,6 +80,20 @@ h1,h2,h3,h4{font-family:var(--display);letter-spacing:.01em;margin:0}
 @media(max-width:480px){.pair{grid-template-columns:1fr}}
 .trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 
+.group-label{display:block;font-weight:600;font-size:13px;margin-bottom:7px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.checks{grid-template-columns:1fr}}
+.checks label{
+  display:flex;align-items:center;gap:9px;padding:9px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:7px;font-size:13.5px;font-weight:400;
+  background:var(--paper);
+}
+.checks label:hover{border-color:var(--ice-deep)}
+.checks input{width:16px;height:16px;flex:0 0 auto;accent-color:var(--ice-deep);margin:0}
+.checks input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.checks label:has(input:checked){border-color:var(--ice-deep);background:#EFF6FA;font-weight:500}
+.field.is-invalid .checks label{border-color:var(--rose)}
+
 details.advanced{border-top:1px solid var(--line);margin-top:6px;padding-top:14px}
 details.advanced summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ice-deep)}
 details.advanced > div{padding-top:16px}
@@ -229,3 +243,11 @@ ul.chips li{background:var(--snow);border:1px solid var(--line);border-radius:4p
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+
+/* targeting: DOOH venues and the lookback audiences */
+h4.sub{font-size:19px;font-weight:600;margin:26px 0 6px;padding-top:18px;border-top:1px solid var(--line)}
+.lookback{border:1px solid var(--line);border-left:4px solid var(--ice-deep);border-radius:8px;padding:14px 16px;margin-bottom:10px}
+.lookback h5{font-family:var(--display);font-size:18px;font-weight:600;margin:0 0 4px}
+.lookback dl{margin:0;font-size:13.5px}
+.lookback dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+.lookback dd{margin:2px 0 0}
