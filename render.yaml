@@ -1,17 +1,23 @@
 services:
   - type: web
-    name: smart1ski
-    runtime: node
-    plan: free
-    buildCommand: npm install --omit=dev
-    startCommand: npm start
+    name: smart1boat
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 300
     healthCheckPath: /health
     envVars:
-      - key: NODE_VERSION
-        value: 20
-      # The exact origin that embeds the form, e.g. https://suite.smart1marketing.com
-      # Leave this unset only while testing. A wildcard lets any site post to the API.
-      - key: ALLOWED_ORIGIN
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
       - key: SMART1_WEBHOOK_URL
         sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: ENABLE_PDF
+        value: "1"
+      - key: ALLOWED_ORIGINS
+        value: "*"
